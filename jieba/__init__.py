@@ -474,20 +474,27 @@ class Tokenizer(object):
             add_word(word, freq)
         return freq
 
-    def tokenize(self, unicode_sentence, mode="default", HMM=True):
+    def tokenize(self, unicode_sentence, mode="default", HMM=True, re_pattern=None):
         """
         Tokenize a sentence and yields tuples of (word, start, end)
 
         Parameter:
             - sentence: the str(unicode) to be segmented.
-            - mode: "default" or "search", "search" is for finer segmentation.
+            - mode: "default", "search" or "preprocess". "search" is for finer segmentation. "preprocess" first splits with re_pattern, then run default cut
             - HMM: whether to use the Hidden Markov Model.
+            - re_pattern: compiled regex for preprocess mode (see cut_with_preprocess)
         """
         if not isinstance(unicode_sentence, text_type):
             raise ValueError("jieba: the input parameter should be unicode.")
         start = 0
         if mode == 'default':
             for w in self.cut(unicode_sentence, HMM=HMM):
+                width = len(w)
+                yield (w, start, start + width)
+                start += width
+        elif mode == 'preprocess':
+            assert re_pattern != None
+            for w in self.cut_with_preprocess(unicode_sentence, HMM=HMM, re_pattern=re_pattern):
                 width = len(w)
                 yield (w, start, start + width)
                 start += width
