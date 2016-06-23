@@ -244,7 +244,36 @@ word 有限公司            start: 6                end:10
 * `from jieba.analyse import ChineseAnalyzer`
 * Example: https://github.com/fxsjy/jieba/blob/master/test/test_whoosh.py
 
-8. Command Line Interface
+8. Preprocessing and special regex handling
+-------------------------------
+
+* The `jieba.cut_with_preprocess` function accepts four input parameters: three are same as the cut function; an additional parameter re_pattern is a compiled regular expression
+* First, the sentence is split according to the regex. The remaining parts are passed to cut() for segmentation, while the matched strings are left intact. This can be use
+* `jieba.Tokenizer(dictionary=DEFAULT_DICT)` creates a new customized Tokenizer, which enables you to use different dictionaries at the same time. `jieba.dt` is the default Tokenizer, to which almost all global functions are mapped.
+
+
+**Code example: segmentation**
+
+```python
+#encoding=utf-8
+import jieba
+
+seg_list = jieba.cut("我找到了一部喜歡的@YouTube影片http://t.co/fSmGxg97GolfLessons")
+print(" No  Preprocessing: " + "/ ".join(seg_list)) 
+
+seg_list = jieba.cut_with_preprocess("我找到了一部喜歡的@YouTube影片http://t.co/fSmGxg97GolfLessons",re_pattern=jieba.re_twitter)
+print("With Preprocessing: " + "/ ".join(seg_list)) 
+
+```
+
+Output:
+
+    [No Preprocessing]: 我 / 找到 / 了 / 一部 / 喜歡 / 的 / @ / YouTube / 影片 / http / : / / / / / t / . / co / / / fSmGxg97GolfLessonsLosAngelesCa /
+
+    [With Preprocessing]: 我 / 找到 / 了 / 一部 / 喜歡 / 的 / @YouTube / 影片 / http://t.co/fSmGxg97GolfLessonsLosAngelesCa /
+
+
+9. Command Line Interface
 --------------------------------
 
     $> python -m jieba --help

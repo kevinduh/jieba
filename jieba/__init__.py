@@ -45,6 +45,8 @@ re_skip_default = re.compile("(\r\n|\s)", re.U)
 re_han_cut_all = re.compile("([\u4E00-\u9FD5]+)", re.U)
 re_skip_cut_all = re.compile("[^a-zA-Z0-9+#\n]", re.U)
 
+re_twitter=re.compile('(@[\w+\d]+|http://[\w\d\.\/]+)')
+
 def setLogLevel(log_level):
     global logger
     default_logger.setLevel(log_level)
@@ -329,6 +331,31 @@ class Tokenizer(object):
                         yield gram3
             yield w
 
+    def cut_with_preprocess(self, sentence, re_pattern=re_twitter, cut_all=False, HMM=True):
+        '''
+        Preprocess sentence prior to running cut
+        First, the sentence is split according to the regex. 
+        The remaining parts are passed to cut() for segmentation, while the matched strings are left intact.
+        This is useful, e.g. for segmenting Twitter text, where emoticons and URLS can be encoded as regex and not cut
+
+        Parameter:
+            - sentence: The str(unicode) to be segmented.
+            - re_pattern: Compiled regex object (re.compiled)
+            - cut_all: Model type. True for full pattern, False for accurate pattern.
+            - HMM: Whether to use the Hidden Markov Model.
+        '''
+        sentence = strdecode(sentence)
+        blocks = re_pattern.split(sentence)
+        #print blocks
+        for blk in blocks:
+            if not blk:
+                continue
+            if re_twitter.match(blk):
+                yield blk
+            else:
+                for i in cut(blk,cut_all,HMM):
+                    yield(i)
+
     def lcut(self, *args, **kwargs):
         return list(self.cut(*args, **kwargs))
 
@@ -511,7 +538,7 @@ set_dictionary = dt.set_dictionary
 suggest_freq = dt.suggest_freq
 tokenize = dt.tokenize
 user_word_tag_tab = dt.user_word_tag_tab
-
+cut_with_preprocess = dt.cut_with_preprocess 
 
 def _lcut_all(s):
     return dt._lcut_all(s)
