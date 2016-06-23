@@ -45,7 +45,27 @@ re_skip_default = re.compile("(\r\n|\s)", re.U)
 re_han_cut_all = re.compile("([\u4E00-\u9FD5]+)", re.U)
 re_skip_cut_all = re.compile("[^a-zA-Z0-9+#\n]", re.U)
 
-re_twitter=re.compile('(@[\w+\d]+|http://[\w\d\.\/]+)')
+
+def create_twitter_regex():
+    url = "(" + "(?:https?:|www\.)[-A-Za-z0-9_?#\.&=/]+" + "|" + "[-.A-Za-z0-9]+\.(?:com|co\.uk|org|net|info|ca|ly|mp|edu|gov)(?:/[-_?#&=A-Za-z0-9]*)?" + ")"
+    eastern_emoticon = "((?:-_-)|(?:\^_\^)|(?:=_=)|(?:\^\.\^)|(?:\._\.)|(?:>_<)|(?:\*-\*)|(?:\*_\*))"
+    at_mention = "(@[_A-Za-z0-9]+)"
+    email = "([a-zA-Z0-9._%+-]+[^.!?:;\s]@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})"
+    heart = "((?:<|(?:&lt))+/?3+)"
+    hashtag = "\B#\w*[a-zA-Z]+\w*"
+    number = "(\d+(?:[:,./]\d+)+)"
+    encoded_space = "(&nbsp;)"
+    repeated_punct = "(\.{2,}|\?{2,}|!{2,}|~{2,})"
+    western_emoticon = "((?:[<>]?[:;=8xX][-oO*']?[*)\]([$sSdDpP/}{@|\\\]+)|(?:[*)\]([$sSdDpP/}{@|\\\]+[-oO*']?[:;=8xX][<>]?))"
+    patterns = [email,at_mention,url,encoded_space,eastern_emoticon,heart,hashtag,number,repeated_punct,western_emoticon]
+    print '|'.join(patterns)
+    return '|'.join(patterns)
+
+
+re_twitter=re.compile(create_twitter_regex())
+
+#re_twitter=re.compile('(@[\w+\d]+|http://[\w\d\.\/]+)')
+
 
 def setLogLevel(log_level):
     global logger
@@ -346,11 +366,11 @@ class Tokenizer(object):
         '''
         sentence = strdecode(sentence)
         blocks = re_pattern.split(sentence)
-        #print blocks
+        print blocks
         for blk in blocks:
             if not blk:
                 continue
-            if re_twitter.match(blk):
+            if re_pattern.match(blk):
                 yield blk
             else:
                 for i in cut(blk,cut_all,HMM):
