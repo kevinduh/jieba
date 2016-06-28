@@ -58,7 +58,7 @@ def create_twitter_regex():
     repeated_punct = "(\.{2,}|\?{2,}|!{2,}|~{2,})"
     western_emoticon = "((?:[<>]?[:;=8xX][-oO*']?[*)\]([$sSdDpP/}{@|\\\]+)|(?:[*)\]([$sSdDpP/}{@|\\\]+[-oO*']?[:;=8xX][<>]?))"
     patterns = [email,at_mention,url,encoded_space,eastern_emoticon,heart,hashtag,number,repeated_punct,western_emoticon]
-    print '|'.join(patterns)
+    #print '|'.join(patterns)
     return '|'.join(patterns)
 
 
@@ -366,7 +366,7 @@ class Tokenizer(object):
         '''
         sentence = strdecode(sentence)
         blocks = re_pattern.split(sentence)
-        print blocks
+        #print blocks
         for blk in blocks:
             if not blk:
                 continue
